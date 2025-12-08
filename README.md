@@ -1,3 +1,5 @@
+# ARE YOU LOOKING FOR THE WEBSITE (beta)? HERE: [Find open rooms](https://rooms.scotty.lol/frontend)
+
 # event-scraper
 
 A web scraper for CMU's 25Live calendar system that extracts event and room reservation data, with an API and web interface for finding available rooms.
