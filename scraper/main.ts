@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer-core';
 import surf from './surfer';
+import { client } from './db';
 
 const WAIT_FOR_DUO_PROMPT_SECS = 180; // 3 minutes
 const BROWSERLESS_URI = process.env.BROWSERLESS_URI || 'ws://localhost:3000';
@@ -54,3 +55,9 @@ await surf(page, { start: new Date('2025-12-08'), end: new Date('2025-12-10') })
   
 // Close the browser when done
 await browser.close();
+console.log('Browser closed');
+
+// Close database connection
+await client.end();
+console.log('Database connection closed');
+console.log('Scraper finished successfully');

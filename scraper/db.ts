@@ -5,7 +5,7 @@ import * as schema from './schema';
 const DATABASE_URL = process.env.DATABASE_URL || 'postgres://user:password@localhost:5432/scraper_db';
 
 // Create postgres connection
-const client = postgres(DATABASE_URL);
+export const client = postgres(DATABASE_URL);
 
 // Create drizzle instance
 export const db = drizzle(client, { schema });
