@@ -300,6 +300,14 @@
     </div>
 
     <script>
+        const ENVIRONMENT = window.location.hostname.includes('localhost') || window.location.hostname === '127.0.0.1' || window.location.hostname === '0.0.0.0' ? 'development' : 'production';
+        console.log(`Environment: ${ENVIRONMENT}`);
+
+        let API_URL = '';
+        if (ENVIRONMENT === 'development') {
+            API_URL = 'http://localhost:3001';
+        }
+
         let allRooms = [];
 
         function setNow() {
@@ -336,7 +344,7 @@
 
             try {
                 const datetime = new Date(datetimeInput).toISOString();
-                const response = await fetch(`/api/free-rooms?datetime=${encodeURIComponent(datetime)}`, {
+                const response = await fetch(`${API_URL}/api/free-rooms?datetime=${encodeURIComponent(datetime)}`, {
                     method: 'GET',
                 });
 
@@ -366,7 +374,7 @@
                 "WH", "WQ", "WWG"
             ];
             // get the building code anywhere in the string
-            const buildingCode = BUILDING_CODES.find(code => room_string.includes(code));
+            const buildingCode = BUILDING_CODES.find(code => room_string.split(" ").includes(code));
             // get the room id as the word containing the most digits
             const roomId = room_string.split(' ').reduce((a, b) => {
                 return (b.replace(/\D/g, '').length > a.replace(/\D/g, '').length) ? b : a;
@@ -374,6 +382,9 @@
 
             if (buildingCode && roomId) {
                 return `${baseUrl}${buildingCode}-${roomId}`;
+            }
+            if (buildingCode) {
+                return `${baseUrl}${buildingCode}`;
             }
             return baseUrl;
         }
