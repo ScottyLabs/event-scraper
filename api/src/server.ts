@@ -139,6 +139,12 @@ app.get('/api/room-schedule', async (req: Request, res: Response) => {
   }
 });
 
+// catchall return 404 for undefined routes
+app.use((req: Request, res: Response) => {
+  console.log(`404 Not Found: ${req.method} ${req.originalUrl}`);
+  res.status(404).json({ error: 'Not Found' });
+});
+
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);
 });
