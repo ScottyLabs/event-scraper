@@ -300,8 +300,6 @@
     </div>
 
     <script>
-        // const API_URL = 'https://api.rooms.scotty.lol';
-        const API_URL = 'http://localhost:3001';
         let allRooms = [];
 
         function setNow() {
@@ -338,7 +336,7 @@
 
             try {
                 const datetime = new Date(datetimeInput).toISOString();
-                const response = await fetch(`http://localhost:3001/api/free-rooms?datetime=${encodeURIComponent(datetime)}`, {
+                const response = await fetch(`/api/free-rooms?datetime=${encodeURIComponent(datetime)}`, {
                     method: 'GET',
                 });
 
