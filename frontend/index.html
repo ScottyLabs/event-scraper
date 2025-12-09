@@ -300,7 +300,8 @@
     </div>
 
     <script>
-        const API_URL = 'https://api.rooms.scotty.lol';
+        // const API_URL = 'https://api.rooms.scotty.lol';
+        const API_URL = 'http://localhost:3001';
         let allRooms = [];
 
         function setNow() {
@@ -337,9 +338,8 @@
 
             try {
                 const datetime = new Date(datetimeInput).toISOString();
-                const response = await fetch(`/api/free-rooms?datetime=${encodeURIComponent(datetime)}`, {
+                const response = await fetch(`http://localhost:3001/api/free-rooms?datetime=${encodeURIComponent(datetime)}`, {
                     method: 'GET',
-                    credentials: 'include'
                 });
 
                 if (!response.ok) {
@@ -355,6 +355,29 @@
             } finally {
                 loading.style.display = 'none';
             }
+        }
+
+        function getCMUMapsLink(room_string) {
+            const baseUrl = 'https://maps.scottylabs.org/';
+            const BUILDING_CODES = [
+                "2SC", "3SC", "4SC", "AH", "AN", "BH", "BR", "CA", "CC", "CFA",
+                "CIC", "CUC", "CYH", "DH", "EDS", "FM", "FRB", "GHC", "GL", "GYM",
+                "HBH", "HH", "HL", "HOA", "III", "INI", "M19", "MC", "MEL", "MI",
+                "MM", "NR", "NSH", "PC", "PCA", "PE", "PH", "PO", "POS", "PTC",
+                "RA", "REH", "SC", "SEI", "SH", "TCS", "TEP", "UT", "WEH", "WF",
+                "WH", "WQ", "WWG"
+            ];
+            // get the building code anywhere in the string
+            const buildingCode = BUILDING_CODES.find(code => room_string.includes(code));
+            // get the room id as the word containing the most digits
+            const roomId = room_string.split(' ').reduce((a, b) => {
+                return (b.replace(/\D/g, '').length > a.replace(/\D/g, '').length) ? b : a;
+            }, '');
+
+            if (buildingCode && roomId) {
+                return `${baseUrl}${buildingCode}-${roomId}`;
+            }
+            return baseUrl;
         }
 
         function displayResults(data) {
@@ -417,11 +440,14 @@
                 `;
                 filterInfo.textContent = 'No rooms match your filter';
             } else {
+                // render room cards with link to cmu maps, remove underlines from room names
                 roomsList.innerHTML = rooms
                     .map(room => `
-                        <div class="room-card">
-                            <div class="room-name">📍 ${room}</div>
-                        </div>
+                        <a href="${getCMUMapsLink(room)}" target="_blank" style="text-decoration: none;">
+                            <div class="room-card">
+                                <div class="room-name">${room.replace(/_/g, ' ')}</div>
+                            </div>
+                        </a>
                     `)
                     .join('');
 
