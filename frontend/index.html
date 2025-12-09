@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -187,7 +188,7 @@
         }
 
         .room-card {
-            
+
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -242,6 +243,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -253,11 +255,11 @@
             <div class="form-group">
                 <label for="datetime">Select Date and Time</label>
                 <div class="button-group">
-                    <input type="datetime-local" id="datetime" />  
+                    <input type="datetime-local" id="datetime" />
                     <button class="btn-secondary" onclick="setNow()">Now</button>
                 </div>
             </div>
-                <button class="btn-primary" onclick="searchRooms()">Search Free Rooms</button>
+            <button class="btn-primary" onclick="searchRooms()">Search Free Rooms</button>
         </div>
 
         <div id="error" style="display: none;" class="error"></div>
@@ -287,7 +289,8 @@
             <div id="filterSection" style="display: none; margin-bottom: 20px;">
                 <label for="roomFilter">Filter Rooms</label>
                 <div class="search-input-wrapper">
-                    <input type="text" id="roomFilter" placeholder="Type to filter by building or room name..." oninput="filterRooms()" />
+                    <input type="text" id="roomFilter" placeholder="Type to filter by building or room name..."
+                        oninput="filterRooms()" />
                     <span class="search-icon">🔍</span>
                 </div>
                 <div class="filter-info" id="filterInfo"></div>
@@ -320,7 +323,7 @@
 
         async function searchRooms() {
             const datetimeInput = document.getElementById('datetime').value;
-            
+
             if (!datetimeInput) {
                 showError('Please select a date and time');
                 return;
@@ -328,14 +331,17 @@
 
             const loading = document.getElementById('loading');
             const results = document.getElementById('results');
-            
+
             loading.style.display = 'block';
             results.style.display = 'none';
 
             try {
                 const datetime = new Date(datetimeInput).toISOString();
-                const response = await fetch(`${API_URL}/api/free-rooms?datetime=${encodeURIComponent(datetime)}`);
-                
+                const response = await fetch(`/api/free-rooms?datetime=${encodeURIComponent(datetime)}`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+
                 if (!response.ok) {
                     const error = await response.json();
                     throw new Error(error.error || 'Failed to fetch rooms');
@@ -356,13 +362,13 @@
             const selectedTime = document.getElementById('selectedTime');
             const filterSection = document.getElementById('filterSection');
             const roomFilter = document.getElementById('roomFilter');
-            
+
             // Store all rooms globally
             allRooms = data.rooms;
-            
+
             // Reset filter
             roomFilter.value = '';
-            
+
             document.getElementById('freeCount').textContent = data.freeRooms;
             document.getElementById('occupiedCount').textContent = data.occupiedRooms;
             document.getElementById('totalCount').textContent = data.totalRooms;
@@ -391,7 +397,7 @@
         function renderRooms(rooms) {
             const roomsList = document.getElementById('roomsList');
             const filterInfo = document.getElementById('filterInfo');
-            
+
             if (rooms.length === 0 && allRooms.length === 0) {
                 roomsList.innerHTML = `
                     <div class="no-results" style="grid-column: 1/-1;">
@@ -418,7 +424,7 @@
                         </div>
                     `)
                     .join('');
-                
+
                 if (rooms.length < allRooms.length) {
                     filterInfo.textContent = `Showing ${rooms.length} of ${allRooms.length} rooms`;
                 } else {
@@ -429,17 +435,17 @@
 
         function filterRooms() {
             const filterValue = document.getElementById('roomFilter').value.toLowerCase().trim();
-            
+
             if (!filterValue) {
                 renderRooms(allRooms);
                 return;
             }
-            
+
             // Filter by subword presence (case-insensitive)
-            const filteredRooms = allRooms.filter(room => 
+            const filteredRooms = allRooms.filter(room =>
                 room.toLowerCase().includes(filterValue)
             );
-            
+
             renderRooms(filteredRooms);
         }
 
@@ -447,4 +453,5 @@
         setNow();
     </script>
 </body>
+
 </html>
