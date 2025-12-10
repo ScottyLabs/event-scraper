@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from './schema';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'postgres://user:password@localhost:5432/scraper_db';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgres://user:password@localhost:5432/postgres';
 
 // Create postgres connection
 export const client = postgres(DATABASE_URL);

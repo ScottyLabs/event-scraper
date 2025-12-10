@@ -1,12 +1,12 @@
-FROM node:20-alpine
+FROM oven/bun:latest
 
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install
-
 COPY . .
 
-EXPOSE 3001
+RUN bun install
 
-CMD ["npm", "start"]
+RUN bun run db:generate 
+EXPOSE 8080
+
+CMD ["bun", "start"]

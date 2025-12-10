@@ -37,7 +37,7 @@ cp .env.example .env
 
 3. Update `.env` with your credentials:
 ```env
-DATABASE_URL=postgres://user:password@postgres:5432/scraper_db
+DATABASE_URL=postgres://user:password@postgres:5432/postgres
 BROWSERLESS_URI=browserless:3000
 CMU_USERNAME=your_andrew_id
 CMU_PASSWORD=your_password

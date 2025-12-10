@@ -4,7 +4,7 @@ import * as schema from './schema.js';
 
 const { Pool } = pg;
 
-const connectionString = process.env.DATABASE_URL || 'postgres://user:password@localhost:5432/scraper_db';
+const connectionString = process.env.DATABASE_URL || 'postgres://user:password@localhost:5432/postgres';
 
 export const pool = new Pool({
   connectionString,

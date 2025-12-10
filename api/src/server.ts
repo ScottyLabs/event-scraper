@@ -5,7 +5,7 @@ import { events, roomBookings } from './schema.js';
 import { and, lte, gte, sql, lt, gt } from 'drizzle-orm';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 
 
 app.use(cors());

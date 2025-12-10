@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node --loader ts-node/esm src/server.ts",
-    "dev": "node --loader ts-node/esm --watch src/server.ts"
+    "start": "bun run src/server.ts",
+    "dev": "bun run --watch src/server.ts",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
+    "db:push": "bunx drizzle-kit push",
+    "db:studio": "bunx drizzle-kit studio"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -17,7 +21,7 @@
     "@types/cors": "^2.8.17",
     "@types/node": "^20.10.0",
     "@types/pg": "^8.10.9",
-    "ts-node": "^10.9.2",
+    "drizzle-kit": "^0.31.8",
     "typescript": "^5.3.3"
   }
 }

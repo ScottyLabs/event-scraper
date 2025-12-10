@@ -95,5 +95,5 @@ npm start
 
 ## Environment Variables
 
-- `DATABASE_URL`: PostgreSQL connection string (default: `postgres://user:password@localhost:5432/scraper_db`)
+- `DATABASE_URL`: PostgreSQL connection string (default: `postgres://user:password@localhost:5432/postgres`)
 - `PORT`: Server port (default: `3001`)

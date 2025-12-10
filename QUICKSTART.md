@@ -74,7 +74,7 @@ docker-compose down -v
 - You need to run the scraper first to populate the database
 - Check if there are events in the database:
   ```bash
-  docker-compose exec postgres psql -U user -d scraper_db -c "SELECT COUNT(*) FROM events;"
+  docker-compose exec postgres psql -U user -d postgres -c "SELECT COUNT(*) FROM events;"
   ```
 
 ## Development Workflow
