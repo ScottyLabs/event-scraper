@@ -200,10 +200,65 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
         }
 
+        .room-card-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
         .room-name {
             font-weight: 600;
             color: #333;
             font-size: 16px;
+            flex: 1;
+        }
+        .room-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-in-use {
+            padding: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn-in-use:hover {
+            background: #556cd6;
+            transform: scale(1.05);
+        }
+
+        .map-button {
+            width: 100%;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #38a169;
+            color: white;
+            transition: all 0.2s;
+            text-decoration: none;
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .map-button:hover {
+            background: #2f855a;
+            transform: scale(1.05);
+        }
+        .button-disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
         }
 
         .no-results {
@@ -374,9 +429,9 @@
                 "WH", "WQ", "WWG"
             ];
             // get the building code anywhere in the string
-            const buildingCode = BUILDING_CODES.find(code => room_string.split(" ").includes(code));
+            const buildingCode = BUILDING_CODES.find(code => room_string.split(/[ -]/).includes(code));
             // get the room id as the word containing the most digits
-            const roomId = room_string.split(' ').reduce((a, b) => {
+            const roomId = room_string.split(/[ -]/).reduce((a, b) => {
                 return (b.replace(/\D/g, '').length > a.replace(/\D/g, '').length) ? b : a;
             }, '');
 
@@ -452,11 +507,15 @@
                 // render room cards with link to cmu maps, remove underlines from room names
                 roomsList.innerHTML = rooms
                     .map(room => `
-                        <a href="${getCMUMapsLink(room)}" target="_blank" style="text-decoration: none;">
-                            <div class="room-card">
+                        <div class="room-card">
+                            <div class="room-card-content">
                                 <div class="room-name">${room.replace(/_/g, ' ')}</div>
+                                <div class="room-actions">
+                                    <a href="${getCMUMapsLink(room)}" target="_blank" class="map-button ${getCMUMapsLink(room) == 'https://maps.scottylabs.org/' ? 'button-disabled' : ''}">🗺️ Map</a>
+                                    <button class="btn-in-use" onclick="markRoomInUse(event, '${room.replace(/'/g, "\\'")}')">Occupied?</button>
+                                </div>
                             </div>
-                        </a>
+                        </div>
                     `)
                     .join('');
 
@@ -482,6 +541,68 @@
             );
 
             renderRooms(filteredRooms);
+        }
+
+        async function markRoomInUse(event, room) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = '...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/room-in-use`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ room }),
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to mark room as in use');
+                }
+                
+                const data = await response.json();
+                
+                // Remove room from the list
+                allRooms = allRooms.filter(r => r !== room);
+                
+                // Update counts
+                const freeCount = parseInt(document.getElementById('freeCount').textContent) - 1;
+                const occupiedCount = parseInt(document.getElementById('occupiedCount').textContent) + 1;
+                document.getElementById('freeCount').textContent = freeCount;
+                document.getElementById('occupiedCount').textContent = occupiedCount;
+                
+                // Re-render with current filter
+                filterRooms();
+                
+                // Show success message
+                showSuccess(`Room marked as in use for 1 hour`);
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'Failed to mark room as in use');
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        function showSuccess(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = '✓ ' + message;
+            errorDiv.style.display = 'block';
+            errorDiv.style.background = '#e6ffe6';
+            errorDiv.style.color = '#2e7d32';
+            errorDiv.style.borderLeftColor = '#2e7d32';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+                errorDiv.style.background = '#fee';
+                errorDiv.style.color = '#c33';
+                errorDiv.style.borderLeftColor = '#c33';
+            }, 3000);
         }
 
         // Set current time on page load

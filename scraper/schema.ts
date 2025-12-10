@@ -13,5 +13,15 @@ export const events = pgTable('events', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+export const roomBookings = pgTable('room_bookings', {
+  id: serial('id').primaryKey(),
+  room: text('room').notNull(),
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
+export type RoomBooking = typeof roomBookings.$inferSelect;
+export type NewRoomBooking = typeof roomBookings.$inferInsert;

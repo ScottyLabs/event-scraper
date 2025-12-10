@@ -22,6 +22,13 @@
       "when": 1765222385717,
       "tag": "0002_mushy_umar",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1733875200000,
+      "tag": "0003_room_bookings",
+      "breakpoints": true
     }
   ]
 }

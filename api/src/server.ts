@@ -1,8 +1,8 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db } from './db.js';
-import { events } from './schema.js';
-import { and, lte, gte, sql } from 'drizzle-orm';
+import { events, roomBookings } from './schema.js';
+import { and, lte, gte, sql, lt, gt } from 'drizzle-orm';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -73,6 +73,19 @@ app.get('/api/free-rooms', async (req: Request, res: Response) => {
     
     const occupiedRooms = new Set(occupiedRoomsResult.map(r => r.locations));
     
+    // Also check for manual bookings (rooms marked as "in use")
+    const bookedRoomsResult = await db
+      .selectDistinct({ room: roomBookings.room })
+      .from(roomBookings)
+      .where(
+        and(
+          lte(roomBookings.startTime, checkTime),
+          gt(roomBookings.endTime, checkTime)
+        )
+      );
+    
+    bookedRoomsResult.forEach(r => occupiedRooms.add(r.room));
+    
     // Calculate free rooms
     const freeRooms = allRooms.filter(room => !occupiedRooms.has(room));
     
@@ -137,6 +150,45 @@ app.get('/api/room-schedule', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching room schedule:', error);
     res.status(500).json({ error: 'Failed to fetch room schedule' });
+  }
+});
+
+// Mark a room as "in use" for one hour
+app.post('/api/room-in-use', async (req: Request, res: Response) => {
+  try {
+    const { room } = req.body;
+    
+    if (!room || typeof room !== 'string') {
+      return res.status(400).json({ 
+        error: 'room parameter is required' 
+      });
+    }
+    
+    const startTime = new Date();
+    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // 1 hour from now
+    
+    const [booking] = await db
+      .insert(roomBookings)
+      .values({
+        room,
+        startTime,
+        endTime,
+      })
+      .returning();
+    
+    res.json({
+      success: true,
+      booking: {
+        id: booking.id,
+        room: booking.room,
+        startTime: booking.startTime.toISOString(),
+        endTime: booking.endTime.toISOString(),
+      },
+      message: `Room "${room}" marked as in use until ${endTime.toLocaleTimeString()}`
+    });
+  } catch (error) {
+    console.error('Error marking room as in use:', error);
+    res.status(500).json({ error: 'Failed to mark room as in use' });
   }
 });
 
