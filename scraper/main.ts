@@ -11,6 +11,7 @@ console.log(`Scraper PID: ${process.pid}`);
 console.log(`Connecting to browserless at ws://${BROWSERLESS_URI}...`);
 const browser = await puppeteer.connect({
   browserWSEndpoint: `${BROWSERLESS_URI}`,
+  protocolTimeout: 15 * 60 * 1000, // 15 minutes
 });
 console.log("Connected to browserless.");
 
