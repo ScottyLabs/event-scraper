@@ -1,153 +1,259 @@
-# ARE YOU LOOKING FOR THE WEBSITE (beta)? HERE: [Find open rooms](https://rooms.scotty.lol/frontend)
+# CMU Room Finder
 
-# event-scraper
+> **Live Site:** [rooms.scotty.lol](https://rooms.scotty.lol)
 
-A web scraper for CMU's 25Live calendar system that extracts event and room reservation data, with an API and web interface for finding available rooms.
+A web application for finding available rooms at CMU. Scrapes event data from CMU's 25Live calendar system and provides a REST API and web interface for querying room availability.
 
 ## Features
 
-- Scrapes event data from CMU's 25Live calendar system
-- Handles CMU authentication with Duo 2FA
-- Stores events in PostgreSQL database
-- Supports multi-day events
-- Uses Puppeteer with Browserless for headless browsing
-- **REST API for querying available rooms**
-- **Web interface for finding free rooms at any time**
+- 🏫 **Room Finder** - Find available rooms at any date/time
+- 🔴 **"In Use" Button** - Mark a room as occupied for 1 hour
+- 🗺️ **CMU Maps Integration** - Click rooms to view on ScottyLabs Maps
+- 🔐 **CMU SSO Authentication** - Protected via OAuth2 proxy with Keycloak
+- 📊 **REST API** - Query rooms, schedules, and availability programmatically
 
-## Local Development
+## Architecture
+
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   OAuth2 Proxy  │────▶│     Frontend    │     │   Browserless   │
+│   (Port 4180)   │     │   (Nginx/HTML)  │     │  (Chrome/3000)  │
+└────────┬────────┘     └─────────────────┘     └────────┬────────┘
+         │                                                │
+         ▼                                                ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│    API Server   │────▶│   PostgreSQL    │◀────│     Scraper     │
+│   (Port 8080)   │     │   (Port 5432)   │     │   (One-time)    │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+```
+
+## Quick Start
 
 ### Prerequisites
 
-- [Bun](https://bun.sh) v1.2.20 or higher
-- Docker and Docker Compose
-- CMU credentials with 25Live access
+- [Docker](https://www.docker.com/) and Docker Compose
+- [Bun](https://bun.sh) v1.2.20+ (for local development)
+- CMU credentials with 25Live access (for scraping)
 
-### Setup
+### 1. Clone and Configure
 
-1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/ScottyLabs/event-scraper.git
 cd event-scraper
-```
 
-2. Copy the environment example file:
-```bash
+# Create environment file
 cp .env.example .env
+
+# Edit .env with your CMU credentials (required for scraper only)
 ```
 
-3. Update `.env` with your credentials:
-```env
-DATABASE_URL=postgres://user:password@postgres:5432/postgres
-BROWSERLESS_URI=browserless:3000
-CMU_USERNAME=your_andrew_id
-CMU_PASSWORD=your_password
-```
+### 2. Start All Services
 
-4. Start the services:
 ```bash
 docker-compose up -d
 ```
 
-This will start:
-- **PostgreSQL** on port 5432
-- **Browserless** (Chrome) on port 3000
-- **API server** on port 3001
-- **Frontend** on port 8080
+This starts:
+| Service | Port | Description |
+|---------|------|-------------|
+| OAuth2 Proxy | 4180 | Authentication gateway (main entry point) |
+| Frontend | 80 (internal) | Static HTML/JS served by Nginx |
+| API | 8080 (internal) | REST API with Express/Bun |
+| PostgreSQL | 5432 | Database for events and bookings |
+| Browserless | 3000 | Headless Chrome for scraping |
 
-5. Access the web interface:
-   - Open http://localhost:8080 in your browser
-   - Select a date and time to find available rooms
+### 3. Access the Application
 
-6. To run the scraper (one-time or scheduled):
+- **Web Interface:** http://localhost:4180 (requires CMU login)
+- **Direct API (dev only):** http://localhost:8080
+
+### 4. Initialize Database (First Time Only)
+
+```bash
+cd api
+bun install
+bun run db:push
+```
+
+### 5. Populate Data (Optional)
+
+To scrape room data from 25Live:
+
 ```bash
 cd scraper
 bun install
-bun migrate.ts  # Run migrations first time only
-bun main.ts     # This requires manual Duo 2FA approval
+bun run migrate.ts  # Run migrations
+bun run main.ts     # Requires Duo 2FA approval
 ```
 
-## Using the API and Frontend
+⚠️ **Note:** The scraper requires manual Duo 2FA approval within 3 minutes.
 
-### Web Interface
+## API Documentation
 
-The frontend provides a simple interface to find free rooms:
+See [api/README.md](api/README.md) for full API documentation.
 
-1. Open http://localhost:8080
-2. Select a date and time (or use "Use Current Time")
-3. Click "Search Free Rooms"
-4. View the list of available rooms
-
-### API Endpoints
-
-See [api/README.md](api/README.md) for detailed API documentation.
-
-Quick examples:
+### Quick Examples
 
 ```bash
+# Health check
+curl http://localhost:8080/health
+
 # Get all rooms
-curl http://localhost:3001/api/rooms
+curl http://localhost:8080/api/rooms
 
 # Find free rooms at a specific time
-curl "http://localhost:3001/api/free-rooms?datetime=2025-12-08T14:00:00"
+curl "http://localhost:8080/api/free-rooms?datetime=2025-12-08T14:00:00"
 
 # Get schedule for a specific room
-curl "http://localhost:3001/api/room-schedule?room=Baker%20Hall%20A53&date=2025-12-08"
+curl "http://localhost:8080/api/room-schedule?room=Baker%20Hall%20A53&date=2025-12-08"
+
+# Mark a room as "in use" for 1 hour
+curl -X POST http://localhost:8080/api/room-in-use \
+  -H "Content-Type: application/json" \
+  -d '{"room": "Baker Hall A53"}'
 ```
 
-## Railway Deployment
+## Development
 
-### Prerequisites
+### Local Development (without Docker)
 
-- Railway account
-- PostgreSQL database provisioned on Railway
-- Browserless service (can use Railway or external service)
-
-### Deployment Steps
-
-1. Create a new project on Railway
-
-2. Add a PostgreSQL database service
-
-3. Add environment variables:
-   - `DATABASE_URL` - Your Railway PostgreSQL connection string
-   - `BROWSERLESS_URI` - Your Browserless service URL (e.g., `chrome.browserless.io`)
-   - `CMU_USERNAME` - Your CMU Andrew ID
-   - `CMU_PASSWORD` - Your CMU password
-
-4. Connect your GitHub repository or deploy using Railway CLI:
 ```bash
-railway link
-railway up
+# Start just the database
+docker-compose up -d postgres
+
+# Run API with hot reload
+cd api
+bun install
+bun run dev
+
+# Frontend is static - just open frontend/index.html in browser
+# Or use a local server:
+cd frontend
+bunx serve .
 ```
 
-5. The Dockerfile will automatically:
-   - Install Bun and dependencies
-   - Run database migrations
-   - Start the scraper
+### Database Commands
 
-### Notes
+```bash
+cd api
 
-- The scraper requires manual Duo 2FA approval (timeout: 3 minutes)
-- For production, consider using Duo API for automated 2FA
-- Railway's ephemeral filesystem means the scraper should be stateless
+# Generate migrations from schema changes
+bun run db:generate
+
+# Apply migrations
+bun run db:migrate
+
+# Push schema directly (development)
+bun run db:push
+
+# Open Drizzle Studio (database GUI)
+bun run db:studio
+```
+
+### Project Structure
+
+```
+event-scraper/
+├── api/                    # REST API (Express + Bun)
+│   ├── src/
+│   │   ├── server.ts       # API routes
+│   │   ├── schema.ts       # Drizzle schema (events, room_bookings)
+│   │   └── db.ts           # Database connection
+│   ├── drizzle/            # Migrations
+│   ├── drizzle.config.ts   # Drizzle Kit config
+│   └── Dockerfile
+├── frontend/               # Static web interface
+│   ├── index.html          # Single-page app
+│   └── Dockerfile          # Nginx container
+├── scraper/                # 25Live scraper
+│   ├── main.ts             # Scraper entry point
+│   ├── surfer.ts           # Puppeteer automation
+│   └── Dockerfile
+└── docker-compose.yml      # Full stack orchestration
+```
 
 ## Database Schema
 
-Events are stored with the following schema:
+### Events Table
+Scraped from 25Live calendar:
 
-```typescript
-{
-  id: serial (primary key)
-  eventId: integer
-  itemId2: integer (unique - reservation ID)
-  name: text
-  profileName: text (nullable)
-  startDateTime: timestamp
-  endDateTime: timestamp
-  locations: text
-  createdAt: timestamp
-  updatedAt: timestamp
-}
+| Column | Type | Description |
+|--------|------|-------------|
+| id | serial | Primary key |
+| eventId | integer | 25Live event ID |
+| itemId2 | integer | Unique reservation ID |
+| name | text | Event name |
+| profileName | text | Event profile/category |
+| startDateTime | timestamp | Event start time |
+| endDateTime | timestamp | Event end time |
+| locations | text | Room name |
+| createdAt | timestamp | Record created |
+| updatedAt | timestamp | Record updated |
+
+### Room Bookings Table
+Manual "in use" bookings from the web interface:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| id | serial | Primary key |
+| room | text | Room name |
+| startTime | timestamp | Booking start (now) |
+| endTime | timestamp | Booking end (now + 1 hour) |
+| createdAt | timestamp | Record created |
+
+## Deployment
+
+### Railway
+
+1. Create a new Railway project
+2. Add PostgreSQL service
+3. Add environment variables:
+   - `DATABASE_URL` - Railway PostgreSQL connection string
+   - `BROWSERLESS_URI` - Browserless service URL
+   - `CMU_USERNAME` / `CMU_PASSWORD` - For scraper
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgres://...@postgres:5432/railway` |
+| `PORT` | API server port | `8080` |
+| `BROWSERLESS_URI` | Browserless WebSocket URL | `ws://browserless:3000` |
+| `CMU_USERNAME` | CMU Andrew ID | - |
+| `CMU_PASSWORD` | CMU password | - |
+
+## Stopping Services
+
+```bash
+# Stop all containers
+docker-compose down
+
+# Stop and remove database volume
+docker-compose down -v
+```
+
+## Troubleshooting
+
+### API can't connect to database
+```bash
+# Check if postgres is running
+docker-compose ps
+
+# View postgres logs
+docker-compose logs postgres
+```
+
+### No rooms showing up
+- Run the scraper to populate the database
+- Check event count: `docker-compose exec postgres psql -U postgres -d railway -c "SELECT COUNT(*) FROM events;"`
+
+### OAuth2 proxy issues
+- Ensure `OAUTH2_PROXY_COOKIE_SECURE=false` for localhost
+- Check proxy logs: `docker-compose logs oauth2-proxy`
+
+## License
+
+MIT
 ```
 
 ## Architecture
@@ -177,7 +283,3 @@ bun main.ts
 # View database in Drizzle Studio
 bun db:studio
 ```
-
-## License
-
-Private - Carnegie Mellon University

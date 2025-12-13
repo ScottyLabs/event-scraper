@@ -5,4 +5,4 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install
 COPY . .
-CMD ["sh", "-c", "bun migrate.ts"]
+CMD ["sh", "-c", "bun main.ts"]

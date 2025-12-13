@@ -1,92 +1,170 @@
 # Quick Start Guide
 
-## For Users (Just want to find free rooms)
+## For Users (Just Want to Find Free Rooms)
 
-If you just want to use the room finder and the database is already populated:
+If the database is already populated:
 
-1. Start the services:
+```bash
+# Start all services
+docker-compose up -d
+
+# Open in browser (requires CMU login)
+open http://localhost:4180
+```
+
+## For Developers (Setting Up From Scratch)
+
+### Step 1: Start All Services
+
 ```bash
 docker-compose up -d
 ```
 
-2. Open your browser to http://localhost:8080
-
-3. Select a date/time and search for free rooms!
-
-## For Developers (Setting up from scratch)
-
-### Step 1: Start Infrastructure
-```bash
-docker-compose up -d
-```
-
-This starts PostgreSQL, the API server, and the frontend.
+This starts: PostgreSQL, API, Frontend, Browserless, and OAuth2 Proxy.
 
 ### Step 2: Initialize the Database
 
 ```bash
-cd scraper
+cd api
 bun install
-bun migrate.ts
+bun run db:push
 ```
 
-### Step 3: Populate the Database (Optional)
+### Step 3: Populate Room Data (Optional)
 
 To scrape room data from 25Live:
 
 ```bash
-# Make sure you have CMU credentials set in .env
+# Set CMU credentials in .env first
 cd scraper
-bun main.ts
+bun install
+bun run migrate.ts
+bun run main.ts  # Requires Duo 2FA approval within 3 minutes
 ```
 
-⚠️ **Note:** This requires manual Duo 2FA approval within 3 minutes.
+### Step 4: Access the Application
 
-### Step 4: Use the Application
+| URL | Description |
+|-----|-------------|
+| http://localhost:4180 | Main app (via OAuth2 proxy, requires CMU login) |
+| http://localhost:8080/api | Direct API access (development only) |
+| http://localhost:8080/health | API health check |
 
-- **Frontend:** http://localhost:8080
-- **API:** http://localhost:3001
-- **API Health:** http://localhost:3001/health
+## Managing the Stack
 
-## Stopping Services
+### View Logs
 
 ```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f api
+docker-compose logs -f scraper
+```
+
+### Restart Services
+
+```bash
+# Restart everything
+docker-compose restart
+
+# Restart specific service
+docker-compose restart api
+```
+
+### Stop Services
+
+```bash
+# Stop all containers
 docker-compose down
+
+# Stop and remove database volume (full reset)
+docker-compose down -v
 ```
 
-To also remove the database volume:
+## Database Commands
+
 ```bash
-docker-compose down -v
+cd api
+
+# Push schema to database (development)
+bun run db:push
+
+# Generate migration files
+bun run db:generate
+
+# Apply migrations
+bun run db:migrate
+
+# Open database GUI
+bun run db:studio
 ```
 
 ## Troubleshooting
 
 ### API can't connect to database
-- Make sure PostgreSQL is running: `docker-compose ps`
-- Check connection string in docker-compose.yml matches database credentials
 
-### Frontend can't reach API
-- Make sure API is running on port 3001
-- Check browser console for CORS errors
-- Verify API health: `curl http://localhost:3001/health`
+```bash
+# Check if postgres is running
+docker-compose ps
+
+# Check postgres logs
+docker-compose logs postgres
+
+# Test connection
+docker-compose exec postgres psql -U postgres -d railway -c "SELECT 1;"
+```
 
 ### No rooms showing up
-- You need to run the scraper first to populate the database
-- Check if there are events in the database:
-  ```bash
-  docker-compose exec postgres psql -U user -d postgres -c "SELECT COUNT(*) FROM events;"
-  ```
+
+```bash
+# Check if events exist
+docker-compose exec postgres psql -U postgres -d railway -c "SELECT COUNT(*) FROM events;"
+
+# Run the scraper to populate data
+cd scraper && bun run main.ts
+```
+
+### OAuth2 / Login issues
+
+- For localhost, ensure `OAUTH2_PROXY_COOKIE_SECURE=false` in docker-compose.yml
+- Check proxy logs: `docker-compose logs oauth2-proxy`
+- Try clearing browser cookies for localhost
+
+### Frontend changes not showing
+
+The frontend is mounted as a volume, so changes should be instant. Just refresh the browser.
+
+### API changes not applying
+
+```bash
+docker-compose restart api
+# Or rebuild:
+docker-compose up -d --build api
+```
 
 ## Development Workflow
 
-1. Make changes to API code in `api/src/`
-2. Restart API service: `docker-compose restart api`
-3. Make changes to frontend in `frontend/index.html`
-4. Refresh browser (changes are instant since it's static HTML)
+### API Development (with hot reload)
 
-For API development with auto-reload:
 ```bash
+# Start only the database
+docker-compose up -d postgres
+
+# Run API locally with hot reload
 cd api
-npm install
-npm run dev
+bun install
+bun run dev
+```
+
+### Frontend Development
+
+The frontend is a static HTML file. Edit `frontend/index.html` and refresh the browser.
+
+For local development without Docker:
+```bash
+cd frontend
+bunx serve .
+# Opens at http://localhost:3000
 ```

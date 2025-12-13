@@ -1,0 +1,146 @@
+services:
+  # ---------------------------------------------------------------------------
+  # 1. Postgres (Database)
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "JxoEFhlTXxWbYJbUJyEsNtiUFmREcZtC"
+      POSTGRES_DB: "scraper"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scraper"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # 2. Browserless (Headless Chrome)
+  # ---------------------------------------------------------------------------
+  browserless:
+    image: browserless/chrome:latest
+    container_name: browserless
+    restart: always
+    environment:
+      TOKEN: "RxFP49YGB3ObjkuWrUwUuNLgyFpwp0WyYMlokLgBB6IMwq30"
+      MAX_CONCURRENT_SESSIONS: "10" # Matches CONCURRENT
+      MAX_QUEUE_LENGTH: "10"      # Matches QUEUED
+      CONNECTION_TIMEOUT: "300000" # Matches TIMEOUT
+      # Standard Browserless listens on 3000 inside the container
+      PORT: 3000 
+    ports:
+      - "3000:3000"
+    networks:
+      - app_network
+
+  # ---------------------------------------------------------------------------
+  # 3. API Service
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Local connection string using the service name "postgres"
+      DATABASE_URL: "postgresql://postgres:JxoEFhlTXxWbYJbUJyEsNtiUFmREcZtC@postgres:5432/scraper"
+      PORT: 8080
+    networks:
+      - app_network
+
+  # ---------------------------------------------------------------------------
+  # 4. Frontend Service
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    environment:
+      PORT: 80
+    volumes:
+      - ./frontend/index.html:/usr/share/nginx/html/index.html
+    networks:
+      - app_network
+  # ---------------------------------------------------------------------------
+  # 5. Scraper Service
+  # ---------------------------------------------------------------------------
+  scraper:
+    build:
+      context: ./scraper
+      dockerfile: Dockerfile
+    container_name: scraper
+    depends_on:
+      postgres:
+        condition: service_healthy
+      browserless:
+        condition: service_started
+    environment:
+      # Database connection
+      DATABASE_URL: "postgresql://postgres:JxoEFhlTXxWbYJbUJyEsNtiUFmREcZtC@postgres:5432/scraper"
+      
+      # Browserless connection (Point to local container name "browserless" on port 3000)
+      BROWSERLESS_URI: "ws://browserless:3000?token=RxFP49YGB3ObjkuWrUwUuNLgyFpwp0WyYMlokLgBB6IMwq30"
+      
+      # App specific Creds, get from ENV
+      CMU_USERNAME: ${CMU_USERNAME}
+      CMU_PASSWORD: ${CMU_PASSWORD}
+    networks:
+      - app_network
+
+  # ---------------------------------------------------------------------------
+  # 6. OAuth2 Proxy
+  # ---------------------------------------------------------------------------
+  oauth2-proxy:
+    image: quay.io/oauth2-proxy/oauth2-proxy:latest
+    container_name: proxy
+    ports:
+      - "4180:4180"
+    depends_on:
+      - api
+      - frontend
+    environment:
+      # Provider Config
+      OAUTH2_PROXY_PROVIDER: "keycloak-oidc"
+      OAUTH2_PROXY_CLIENT_ID: "dev-proxy"
+      OAUTH2_PROXY_CLIENT_SECRET: ${OAUTH2_PROXY_CLIENT_SECRET}
+      OAUTH2_PROXY_OIDC_ISSUER_URL: "https://idp.scottylabs.org/realms/scottylabs"
+      
+      # Cookie Security
+      OAUTH2_PROXY_COOKIE_NAME: "scotty_session"
+      OAUTH2_PROXY_COOKIE_SECRET: "-darczOWKXx8odAotrY33Q=="
+      OAUTH2_PROXY_COOKIE_SECURE: "false" # Set to FALSE for localhost (http), TRUE for production (https)
+      
+      # Routing
+      OAUTH2_PROXY_HTTP_ADDRESS: "0.0.0.0:4180"
+      # IMPORTANT: Map local container names. Note the commas.
+      OAUTH2_PROXY_UPSTREAMS: "http://api:8080/api/,http://frontend:80/"
+      OAUTH2_PROXY_EMAIL_DOMAINS: "andrew.cmu.edu,cmu.edu,alumni.cmu.edu"
+      
+      # UI/UX
+      OAUTH2_PROXY_SKIP_PROVIDER_BUTTON: "true"
+      OAUTH2_PROXY_SKIP_JWT_BEARER_TOKENS: "true"
+      OAUTH2_PROXY_OIDC_EMAIL_CLAIM: "email"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
