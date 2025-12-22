@@ -1,29 +1,22 @@
-import fs from "node:fs";
+import { uploadJson } from "@event-scraper/storage";
 import type { Page } from "puppeteer-core";
 import { login } from "../utils/login";
 
-export const scrape25live = async (page: Page) => {
+export const scrape25live = async (page: Page, range = 7) => {
   await login(page, "https://25live.collegenet.com/pro/cmu#!/home/list");
 
-  // scrape for the next 7 days
+  // scrape for the next `range` days
   const startDate = new Date();
   const endDate = new Date();
-  endDate.setDate(endDate.getDate() + 7);
-  await surf(page, { start: startDate, end: endDate });
-};
+  endDate.setDate(endDate.getDate() + range);
+  const startDateStr = startDate.toISOString().split("T")[0];
+  const endDateStr = endDate.toISOString().split("T")[0];
 
-export const surf = async (
-  page: Page,
-  date_range: { start: Date; end: Date },
-) => {
-  const startDateStr = date_range.start.toISOString().split("T")[0];
-  const endDateStr = date_range.end.toISOString().split("T")[0];
-
-  // Use super calendardata endpoint (by removing cache id) which returns some pattern I do not understand
-  const url = `https://25live.collegenet.com/25live/data/cmu/run/home/calendar/calendardata.json?mode=pro&start_dt=${startDateStr}&end_dt=${startDateStr}&page=1&comptype=home&sort=evdates_event_name&compsubject=location&last_id=-1&caller=pro-CalendarService.getCalendarDayPage`;
-  console.log(`Fetching data from ${startDateStr} to ${endDateStr}`);
-
-  const data: any = await page.evaluate(async (url: string) => {
+  // Fetch data
+  console.log(`Fetching 25live data from ${startDateStr} to ${endDateStr}...`);
+  // Use super calendardata endpoint (removing unnecessary query params)
+  const url = `https://25live.collegenet.com/25live/data/cmu/run/home/calendar/calendardata.json?mode=pro&start_dt=${startDateStr}&end_dt=${endDateStr}&compsubject=location`;
+  const data = await page.evaluate(async (url: string) => {
     return await fetch(url, {
       referrer: "https://25live.collegenet.com/pro/cmu",
       body: null,
@@ -33,12 +26,7 @@ export const surf = async (
     }).then((r) => r.json());
   }, url);
 
-  const totalReservations =
-    data.space_reservations?.space_reservation?.length || 0;
-  console.log(`Fetched ${totalReservations} reservations`);
-
-  console.log(data);
-
-  // save the data to a file
-  fs.writeFileSync("data.json", JSON.stringify(data, null, 2));
+  // Upload the data to S3
+  console.log(`Uploading 25live data to S3...`);
+  await uploadJson("25live.json", data);
 };

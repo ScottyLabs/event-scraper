@@ -1,13 +1,11 @@
 {
-  "name": "@event-scraper/scraper",
-  "version": "0.0.0",
+  "name": "@event-scraper/storage",
+  "version": "1.0.0",
   "dependencies": {
-    "@event-scraper/storage": "workspace:*",
-    "dotenv": "^17.2.3",
-    "puppeteer-core": "^24.34.0",
+    "@aws-sdk/client-s3": "^3.957.0",
     "zod": "^4.2.1"
   },
-  "private": true,
+  "main": "src/index.ts",
   "scripts": {
     "check": "tsc -b && biome check",
     "format": "biome format",
