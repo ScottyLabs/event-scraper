@@ -14,4 +14,4 @@ RUN bun install
 WORKDIR /workspace/apps/scraper
 
 # Run the application
-CMD ["bun", "run", "src/main.ts"]
+CMD ["bun", "run", "src/index.ts"]

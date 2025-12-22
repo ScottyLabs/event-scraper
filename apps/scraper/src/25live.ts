@@ -1,6 +1,6 @@
 import { uploadJson } from "@event-scraper/storage";
 import type { Page } from "puppeteer-core";
-import { login } from "../utils/login";
+import { login } from "./utils/login";
 
 export const scrape25live = async (page: Page, range = 7) => {
   await login(page, "https://25live.collegenet.com/pro/cmu#!/home/list");

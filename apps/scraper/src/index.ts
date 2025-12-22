@@ -1,6 +1,6 @@
 import { config } from "dotenv";
 import puppeteer from "puppeteer-core";
-import { scrape25live } from "./25live/main";
+import { scrape25live } from "./25live";
 import env from "./env";
 
 config();
