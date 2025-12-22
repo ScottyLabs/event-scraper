@@ -1,0 +1,15 @@
+{
+  "name": "@event-scraper/scraper",
+  "version": "0.0.0",
+  "dependencies": {
+    "dotenv": "^17.2.3"
+  },
+  "private": true,
+  "scripts": {
+    "check": "tsc -b && biome check",
+    "format": "biome format",
+    "lint": "biome lint",
+    "tsc": "tsc -b"
+  },
+  "type": "module"
+}
