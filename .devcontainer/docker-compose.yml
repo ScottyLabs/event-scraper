@@ -1,0 +1,50 @@
+name: "event-scraper"
+
+services:
+  dev:
+    container_name: event-scraper-dev
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    ports:
+      - "3000:3000"
+      - "80:80"
+    volumes:
+      - ..:/workspace:cached
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    container_name: event-scraper-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: donotuseinprod
+      POSTGRES_DB: event-scraper
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # https://github.com/storerjeremy/browserless-docker-compose/blob/master/docker-compose.yml
+  browserless:
+    image: browserless/chrome:latest
+    environment:
+      - DEBUG=browserless:*
+      - MAX_CONCURRENT_SESSIONS=10
+      - CONNECTION_TIMEOUT=60000
+      - MAX_QUEUE_LENGTH=20
+      - PREBOOT_CHROME=true
+      - DEMO_MODE=false
+      - HOST=0.0.0.0
+      - ENABLE_DEBUGGER=false
+      - PORT=8080
+      - WORKSPACE_DELETE_EXPIRED=true
+    container_name: event-scraper-browserless
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

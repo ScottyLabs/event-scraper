@@ -1,0 +1,68 @@
+{
+  "name": "Event Scraper",
+  "dockerComposeFile": "./docker-compose.yml",
+  "service": "dev",
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "./scripts/post-create.sh",
+  "features": {
+    "git": {
+      "enabled": true
+    },
+    "ghcr.io/devcontainers/features/common-utils": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "installOhMyZshConfig": true,
+      "configureZshAsDefaultShell": true
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "biomejs.biome",
+        "bradlc.vscode-tailwindcss",
+        "vscode-icons-team.vscode-icons",
+        "davidanson.vscode-markdownlint"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports.biome": "explicit"
+        },
+        "editor.defaultFormatter": "biomejs.biome",
+        "[typescript]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[jsonc]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[css]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        "[shellscript]": {
+          "editor.defaultFormatter": "mkhl.shfmt"
+        },
+        "files.associations": {
+          ".env.*": "properties"
+        },
+        "files.watcherExclude": {
+          "**/routeTree.gen.ts": true
+        },
+        "search.exclude": {
+          "**/routeTree.gen.ts": true
+        },
+        "files.readonlyInclude": {
+          "**/routeTree.gen.ts": true
+        }
+      }
+    }
+  }
+}
