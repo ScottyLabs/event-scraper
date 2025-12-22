@@ -14,14 +14,15 @@
   "packageManager": "bun@1.3.2",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "check-types": "turbo run check-types",
+    "check": "bun run syncpack && biome check && turbo run check",
     "dev": "turbo run dev",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "biome format",
     "lint": "turbo run lint",
+    "prepare": "husky",
     "syncpack": "syncpack lint",
     "syncpack:fix": "syncpack format && syncpack fix-mismatches",
-    "syncpack:update": "syncpack update"
+    "syncpack:update": "syncpack update",
+    "tsc": "turbo run tsc"
   },
   "workspaces": [
     "apps/*",
