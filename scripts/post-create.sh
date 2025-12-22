@@ -6,3 +6,6 @@
 if ! grep -q 'source <(SHELL=zsh bun completions)' ~/.zshrc; then
     echo 'source <(SHELL=zsh bun completions)' >>~/.zshrc
 fi
+
+# Install dependencies
+bun install
