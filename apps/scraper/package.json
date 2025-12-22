@@ -2,7 +2,9 @@
   "name": "@event-scraper/scraper",
   "version": "0.0.0",
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "puppeteer-core": "^24.34.0",
+    "zod": "^4.2.1"
   },
   "private": true,
   "scripts": {
