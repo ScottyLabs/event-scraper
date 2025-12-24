@@ -6,6 +6,7 @@ export const scrapeTartanConnect = async (page: Page) => {
 
   // This is the link on the login button on the Tartan Connect page
   // Directly navigating to https://tartanconnect.cmu.edu/events doesn't automatically authenticate
+  console.log(`Navigating to Tartan Connect page...`);
   await page.goto("https://www.campusgroups.com/shibboleth/login?idp=tepper");
   await page
     .waitForNavigation({ waitUntil: "networkidle0", timeout: 60000 })
@@ -14,6 +15,7 @@ export const scrapeTartanConnect = async (page: Page) => {
     });
 
   // Fetch the events
+  console.log(`Fetching Tartan Connect data...`);
   const events = await page.evaluate(async () => {
     const response = await fetch(
       "https://tartanconnect.cmu.edu/mobile_ws/v17/mobile_events_list?range=0",
@@ -29,5 +31,6 @@ export const scrapeTartanConnect = async (page: Page) => {
   });
 
   // Upload the events to S3
+  console.log(`Uploading Tartan Connect data to S3...`);
   await uploadJson("tartanConnect.json", events);
 };
