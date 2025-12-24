@@ -1,9 +1,16 @@
 import { uploadJson } from "@event-scraper/storage";
 import type { Page } from "puppeteer-core";
-import { login } from "./utils/login";
 
 export const scrape25live = async (page: Page, range = 7) => {
-  await login(page, "https://25live.collegenet.com/pro/cmu#!/home/list");
+  console.log("Scraping 25live...");
+
+  // Navigate to 25live page
+  await page.goto("https://25live.collegenet.com/pro/cmu#!/home/list");
+  await page
+    .waitForNavigation({ waitUntil: "networkidle0", timeout: 60000 })
+    .catch(() => {
+      throw new Error("Failed to navigate to 25live page.");
+    });
 
   // scrape for the next `range` days
   const startDate = new Date();

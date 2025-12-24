@@ -2,11 +2,12 @@ import type { Page } from "puppeteer-core";
 import env from "../env";
 
 /**
- * Logs in to the given login portal URL and handles Duo authentication
+ * Logs in to the given login CMU portal and handles Duo authentication
  */
-export async function login(page: Page, url: string, waitForDuoSecs = 180) {
-  console.log(`Navigating to login page: ${url}`);
-  await page.goto(url);
+export async function login(page: Page, waitForDuoSecs = 180) {
+  // Navigate to login page
+  console.log("Navigating to login.cmu.edu...");
+  await page.goto("https://login.cmu.edu");
 
   // Fill in login form
   console.log("Filling in login form...");
@@ -28,9 +29,7 @@ export async function login(page: Page, url: string, waitForDuoSecs = 180) {
 
   // Wait for navigation to complete after Duo auth
   console.log("Waiting for navigation to complete after Duo auth...");
-  await page
-    .waitForNavigation({ waitUntil: "networkidle0", timeout: 60000 })
-    .catch(() => {});
+  await page.waitForNavigation({ waitUntil: "networkidle0", timeout: 60000 }); // 1 minute
 
   console.log("Login successful!");
 }

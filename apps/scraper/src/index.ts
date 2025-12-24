@@ -1,9 +1,15 @@
 import { config } from "dotenv";
-import puppeteer from "puppeteer-core";
+import puppeteer, { type PuppeteerExtraPlugin } from "puppeteer-extra";
+import pluginStealth from "puppeteer-extra-plugin-stealth";
 import { scrape25live } from "./25live";
 import env from "./env";
+import { scrapeHandshake } from "./handshake";
+import { login } from "./utils/login";
 
 config();
+
+// Use stealth plugin
+puppeteer.use(pluginStealth() as unknown as PuppeteerExtraPlugin);
 
 // Connect to browserless
 console.log(`Connecting to browserless...`);
@@ -11,14 +17,17 @@ const browser = await puppeteer.connect({
   browserWSEndpoint: env.BROWSERLESS_ENDPOINT,
   protocolTimeout: 15 * 60 * 1000, // 15 minutes
 });
-console.log("Connected to browserless.");
 
 // Open new page
 console.log("Opening new page...");
 const page = await browser.newPage();
 
+// Login to CMU portal
+await login(page);
+
 // Scrape
 await scrape25live(page);
+await scrapeHandshake(browser, page);
 
 // Close browser
 await browser.close();

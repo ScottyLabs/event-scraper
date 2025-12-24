@@ -5,6 +5,8 @@
     "@event-scraper/storage": "workspace:*",
     "dotenv": "^17.2.3",
     "puppeteer-core": "^24.34.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "zod": "^4.2.1"
   },
   "private": true,
