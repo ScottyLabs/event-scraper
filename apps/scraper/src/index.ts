@@ -1,9 +1,9 @@
 import { config } from "dotenv";
 import puppeteer, { type PuppeteerExtraPlugin } from "puppeteer-extra";
 import pluginStealth from "puppeteer-extra-plugin-stealth";
-import { scrape25live } from "./25live";
 import env from "./env";
-import { scrapeHandshake } from "./handshake";
+import { scrape25live } from "./services/25live";
+import { scrapeHandshake } from "./services/handshake";
 import { login } from "./utils/login";
 
 config();
