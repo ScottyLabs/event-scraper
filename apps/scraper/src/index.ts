@@ -4,6 +4,7 @@ import pluginStealth from "puppeteer-extra-plugin-stealth";
 import env from "./env";
 import { scrape25live } from "./services/25live";
 import { scrapeHandshake } from "./services/handshake";
+import { scrapeTartanConnect } from "./services/tartanConnect";
 import { login } from "./utils/login";
 
 config();
@@ -28,6 +29,7 @@ await login(page);
 // Scrape
 await scrape25live(page);
 await scrapeHandshake(browser, page);
+await scrapeTartanConnect(page);
 
 // Close browser
 await browser.close();
