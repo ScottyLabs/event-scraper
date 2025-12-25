@@ -32,5 +32,5 @@ export const scrapeTartanConnect = async (page: Page) => {
 
   // Upload the events to S3
   console.log(`Uploading Tartan Connect data to S3...`);
-  await uploadJson("tartanConnect.json", events);
+  await uploadJson("tartan-connect.json", events);
 };
