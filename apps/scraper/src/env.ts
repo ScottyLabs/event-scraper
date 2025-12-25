@@ -6,6 +6,8 @@ const envSchema = z.object({
   CMU_USERNAME: z.string(),
   CMU_PASSWORD: z.string(),
   BROWSERLESS_ENDPOINT: z.string().default("ws://browserless:8080"),
+  RAILWAY_TOKEN: z.string(),
+  NOTIF_CONFIG: z.string(),
 });
 
 // Validate `process.env` against our schema and return the result

@@ -21,7 +21,8 @@
         "biomejs.biome",
         "bradlc.vscode-tailwindcss",
         "vscode-icons-team.vscode-icons",
-        "davidanson.vscode-markdownlint"
+        "davidanson.vscode-markdownlint",
+        "eriklynd.json-tools"
       ],
       "settings": {
         "editor.formatOnSave": true,
