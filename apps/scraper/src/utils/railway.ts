@@ -1,10 +1,104 @@
-// For more information, see: https://docs.railway.com/guides/manage-deployments
-
 import env from "../env";
 
 const RAILWAY_API = "https://backboard.railway.app/graphql/v2";
 
-export const fetchLatestDeployment = async (
+export async function getProjectWithServicesAndEnvs() {
+  const query = `
+    query projects {
+      projects {
+        edges {
+          node {
+            id
+            name
+            environments {
+              edges {
+                node {
+                  id
+                  name
+                }
+              }
+            }
+            services {
+              edges {
+                node {
+                  id
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const res = await fetch(RAILWAY_API, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${env.RAILWAY_TOKEN}`,
+    },
+    body: JSON.stringify({ query }),
+  });
+
+  const data = (await res.json()) as {
+    data: {
+      projects: {
+        edges: {
+          node: {
+            id: string;
+            name: string;
+            environments: { edges: { node: { id: string; name: string } }[] };
+            services: { edges: { node: { id: string; name: string } }[] };
+          };
+        }[];
+      };
+    };
+  };
+
+  // flatten GraphQL edge structure
+  return data.data.projects.edges.map(({ node }) => ({
+    id: node.id,
+    name: node.name,
+    environments: node.environments.edges.map(({ node }) => node),
+    services: node.services.edges.map(({ node }) => node),
+  }));
+}
+
+/**
+ * Restarts a deployment by project, environment, and service.
+ * @param {Object} project - The project object.
+ * @param {Object} environment - The environment object.
+ * @param {Object} service - The service object.
+ */
+export const restartDeployment = async (
+  project: { id: string; name: string },
+  environment: { id: string; name: string },
+  service: { id: string; name: string },
+) => {
+  const deploymentId = await fetchLatestDeployment(
+    project.id,
+    environment.id,
+    service.id,
+  );
+
+  if (!deploymentId) {
+    console.error(
+      "No deployment found for project:",
+      project.name,
+      "service:",
+      service.name,
+      "environment:",
+      environment.name,
+    );
+    return;
+  }
+
+  await restartDeploymentHelper(deploymentId);
+};
+
+// For more information, see: https://docs.railway.com/guides/manage-deployments
+const fetchLatestDeployment = async (
   projectId: string,
   environmentId: string,
   serviceId: string,
@@ -49,9 +143,10 @@ export const fetchLatestDeployment = async (
 
 /**
  * Restarts a deployment by deployment ID.
+ * For more information, see: https://docs.railway.com/guides/manage-deployments
  * @param {string} deploymentId
  */
-export const restartDeployment = async (deploymentId: string) => {
+const restartDeploymentHelper = async (deploymentId: string) => {
   const mutation = `
       mutation restartDeployment($id: String!) {
         deploymentRestart(id: $id)

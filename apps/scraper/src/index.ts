@@ -6,11 +6,13 @@ import { scrape25live } from "./services/25live";
 import { scrapeHandshake } from "./services/handshake";
 import { scrapeTartanConnect } from "./services/tartanConnect";
 import { login } from "./utils/login";
-import { loadNotifConfig } from "./utils/notif";
-import { fetchLatestDeployment, restartDeployment } from "./utils/railway";
+import { loadNotifConfig } from "./utils/notifConfig";
+import {
+  getProjectWithServicesAndEnvs,
+  restartDeployment,
+} from "./utils/railway";
 
 config();
-const notifConfig = loadNotifConfig();
 
 // Scrape the data
 const scrape = async () => {
@@ -43,19 +45,31 @@ const scrape = async () => {
 
 // Notify the processors that the data is ready
 const notify = async () => {
-  for (const project of notifConfig) {
-    for (const environmentId of project.environmentIds) {
-      const deploymentId = await fetchLatestDeployment(
-        project.projectId,
-        environmentId,
-        project.serviceId,
-      );
+  const { projectSet, projectToServices } = loadNotifConfig();
+  const projects = await getProjectWithServicesAndEnvs();
 
-      if (!deploymentId) {
-        console.error("No deployment found.");
-        return;
+  // Filter out projects that are not in the NOTIF_CONFIG
+  const filteredProjects = projects.filter((project) =>
+    projectSet.has(project.name),
+  );
+
+  // Restart deployments for each of the filtered projects
+  for (const project of filteredProjects) {
+    const serviceSet = projectToServices[project.name];
+    if (!serviceSet) {
+      continue;
+    }
+
+    // Filter out services that are not in the NOTIF_CONFIG
+    const filteredServices = project.services.filter((service) =>
+      serviceSet.includes(service.name),
+    );
+
+    // Restart deployments for each filtered services for every environment
+    for (const service of filteredServices) {
+      for (const environment of project.environments) {
+        await restartDeployment(project, environment, service);
       }
-      await restartDeployment(deploymentId);
     }
   }
 };
