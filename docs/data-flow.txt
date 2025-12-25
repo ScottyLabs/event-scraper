@@ -1,0 +1,37 @@
+flowchart LR
+    %% Sources
+    A1[Tartan Connect]
+    A2[25Live]
+    A3[Handshake]
+    A4[WC Online]
+
+    %% Event Scraper
+    B[Event Scraper Service]
+
+    %% Storage
+    C[(S3 Bucket)]
+
+    %% Processors
+    D[CMU Maps Processor]
+    E[CMU Cal Processor]
+
+    %% Databases
+    F[(CMU Maps DB)]
+    G[(CMU Cal DB)]
+
+    %% Scraping relationships
+    A1 -- Scrape --> B
+    A2 -- Scrape --> B
+    A3 -- Scrape --> B
+    A4 -- Scrape --> B
+
+    %% Event Scraper populates S3
+    B -- Populate --> C
+
+    B -. Notify .-> D
+    C -- Pull --> D
+    C -- Pull --> E
+    B -. Notify .-> E
+    
+    D --> F
+    E --> G
