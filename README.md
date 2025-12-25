@@ -19,4 +19,12 @@ Open the project with Dev Container. Populate the environment variables followin
 bun src/index.ts
 ```
 
-Visit the [internal Notion documentation](https://www.notion.so/wiki-scottylabs/Event-Scraper-2b496192554c80f8bd55d8cd108fcd78) for more details.
+## FAQs
+
+### Data Flow Rationale
+
+The CMU password in Railway is sealed. However, it can be obtained by logging it, so we want to limit the number of people having access to this repo... Therefore this repo is only used to scrape the data and upload them to S3 bucket. The data processing should be done in different repos.
+
+### Why are environment secrets only stored in Railway?
+
+If someone can get access to RAILWAY_TOKEN, then they would have access to Railway already.
