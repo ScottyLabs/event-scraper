@@ -45,6 +45,7 @@ const scrape = async () => {
 
 // Notify the processors that the data is ready
 const notify = async () => {
+  console.log("Notifying the processors that the data is ready...");
   const { projectSet, projectToServices } = loadNotifConfig();
   const projects = await getProjectWithServicesAndEnvs();
 
@@ -68,6 +69,9 @@ const notify = async () => {
     // Restart deployments for each filtered services for every environment
     for (const service of filteredServices) {
       for (const environment of project.environments) {
+        console.log(
+          `Restarting deployment for ${project.name} ${environment.name} ${service.name}...`,
+        );
         await restartDeployment(project, environment, service);
       }
     }

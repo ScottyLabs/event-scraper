@@ -1,5 +1,5 @@
-import { uploadJson } from "@event-scraper/storage";
 import type { Browser, Page } from "puppeteer-core";
+import { uploadJson } from "../utils/s3Utils";
 
 /**
  * Scrapes events from Handshake using the given browser and page.

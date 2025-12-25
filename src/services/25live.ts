@@ -1,5 +1,5 @@
-import { uploadJson } from "@event-scraper/storage";
 import type { Page } from "puppeteer-core";
+import { uploadJson } from "../utils/s3Utils";
 
 export const scrape25live = async (page: Page, range = 7) => {
   console.log("Scraping 25live...");

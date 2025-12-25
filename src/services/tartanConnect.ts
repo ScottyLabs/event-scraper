@@ -1,5 +1,5 @@
-import { uploadJson } from "@event-scraper/storage";
 import type { Page } from "puppeteer-core";
+import { uploadJson } from "../utils/s3Utils";
 
 export const scrapeTartanConnect = async (page: Page) => {
   console.log("Scraping Tartan Connect...");

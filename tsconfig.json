@@ -36,8 +36,12 @@
     "allowUnreachableCode": false,
     "isolatedModules": true,
     "checkJs": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
     // "exactOptionalPropertyTypes": true,
     // "noImplicitReturns": true
-  }
+
+    // https://github.com/tsconfig/bases/blob/main/bases/vite-react.json
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
+  },
+  "include": ["src"]
 }

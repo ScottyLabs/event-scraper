@@ -1,11 +1,17 @@
 import { z } from "zod";
 
-// Define the schema as an object with all of the env variables and their types
+// Define the schema as an object with all of the env
+// variables and their types
 const envSchema = z.object({
+  CMU_USERNAME: z.string(),
+  CMU_PASSWORD: z.string(),
+  BROWSERLESS_ENDPOINT: z.string().default("ws://browserless:8080"),
   S3_ENDPOINT: z.string(),
   S3_ACCESS_KEY: z.string(),
   S3_SECRET_KEY: z.string(),
   S3_BUCKET: z.string(),
+  RAILWAY_TOKEN: z.string(),
+  NOTIF_CONFIG: z.string(),
 });
 
 // Validate `process.env` against our schema and return the result
