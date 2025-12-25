@@ -11,6 +11,10 @@ const envSchema = z.object({
   S3_SECRET_KEY: z.string(),
   S3_BUCKET: z.string(),
   RAILWAY_TOKEN: z.string(),
+
+  // The NOTIF_CONFIG is a comma-separated list of project names and service names.
+  // The project names and service names are separated by a slash (/).
+  // Example: "project1/service1,project2/service2"
   NOTIF_CONFIG: z.string(),
 });
 

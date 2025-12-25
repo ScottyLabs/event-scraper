@@ -6,6 +6,8 @@ The Event Scraper service scrape data and upload them to S3 bucket from the foll
 - Handshake
 - Tartan Connect
 
+Then the Event Scraper service notifies the Railway services defined in the `NOTIF_CONFIG` environment variable to restart their deployments, which are responsible for pulling the data from S3 bucket and processing them.
+
 ## Data Flow
 
 ![Data Flow Diagram](./docs/data-flow.png)
