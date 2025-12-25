@@ -8,7 +8,7 @@ The Event Scraper service scrape data and upload them to S3 bucket from the foll
 
 ## Data Flow
 
-![Data Flow Diagram](./imgs/data-flow.png)
+![Data Flow Diagram](./docs/data-flow.png)
 *Use code from [docs/data-flow.txt](./docs/data-flow.txt) to generate the diagram in [Mermaid](https://www.mermaidchart.com/play).*
 
 ## Development
