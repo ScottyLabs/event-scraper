@@ -9,23 +9,8 @@ services:
     command: sleep infinity
     ports:
       - "3000:3000"
-      - "80:80"
     volumes:
       - ..:/workspace:cached
-    depends_on:
-      - postgres
-
-  postgres:
-    image: postgres:17
-    container_name: event-scraper-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: donotuseinprod
-      POSTGRES_DB: event-scraper
-    ports:
-      - "127.0.0.1:5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
   # https://github.com/storerjeremy/browserless-docker-compose/blob/master/docker-compose.yml
   browserless:
@@ -43,6 +28,3 @@ services:
       - WORKSPACE_DELETE_EXPIRED=true
     container_name: event-scraper-browserless
     restart: always
-
-volumes:
-  postgres_data:
