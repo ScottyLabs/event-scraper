@@ -15,8 +15,15 @@ Then the Event Scraper service notifies the Railway services defined in the `NOT
 
 ## Accessing the Scraped Data
 
-Consult the [internal Notion documentation](https://www.notion.so/wiki-scottylabs/Event-Scraper-2b496192554c80f8bd55d8cd108fcd78)
-for information on accessing the scraped data. Ask someone in ScottyLabs leadership if you don't have access to the Notion document.
+Follow the instruction in [Governance](https://github.com/ScottyLabs/governance/blob/main/README.md)
+add yourself to the `event-scraper` team.
+
+- Add yourself as a dev if you only need read access.
+  - Then you can access the S3 bucket credentials in the [vault](https://secrets.scottylabs.org/ui/vault/secrets/ScottyLabs/kv/event-scraper%2Fread).
+- Add yourself as a lead if you also need write access.
+  - Then you can access the S3 bucket credentials in the [vault](https://secrets.scottylabs.org/ui/vault/secrets/ScottyLabs/kv/event-scraper%2Fadmin).
+
+Make sure to justify your access request in the description of the PR in Governance.
 
 ## Development
 
