@@ -1,16 +1,18 @@
-# Event Scraper
+# CMU Event Scraper
 
-The Event Scraper service scrapes data and uploads them to an S3 bucket from the
-following sources:
+The Event Scraper service is a part of the
+[Events APIs team](https://github.com/ScottyLabs/governance/blob/main/teams/events-api.toml).
+The service is responsible for scraping data and uploading them to an S3 bucket from the
+following CMU data sources:
 
 - [25Live](https://25live.collegenet.com/25live/data/cmu/run/home/calendar/calendardata.json?mode=pro&compsubject=location):
-  the CMU room reservation data for the next 7 days.
+  the room reservation data for the next 7 days.
 
 - [Handshake](https://app.joinhandshake.com/login?ref=app-domain&selected_host=cmu.joinhandshake.com):
-  the CMU Handshake events for the next 30 days.
+  the Handshake events for the next 30 days.
 
 - [Tartan Connect](https://tartanconnect.cmu.edu/mobile_ws/v17/mobile_events_list?range=0):
-  the CMU Tartan Connect events.
+  the Tartan Connect events.
 
 Then the Event Scraper service notifies the Railway services defined in the
 `NOTIF_CONFIG` environment variable to restart their deployments,
