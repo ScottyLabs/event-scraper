@@ -21,9 +21,11 @@ as an applicant to request the necessary permissions. You will have to work in a
 different ScottyLabs repository than this one. Make sure to describe your use case
 and link the corresponding repository in the description of the PR in Governance.
 
-After
+Instead of submitting a PR, you will deploy a new live Events API serving
+the scraped data to be
+[credited as a contributor](https://github.com/ScottyLabs/wiki/wiki/PR-Process#credited-as-a-contributor)
 
-## Do you want to scrape more data?
+### Do you want to scrape more data?
 
 If you want to scrape more data, open an issue in this repository to discuss the
 new data source you want to scrape. Once we have confirmed the new data source,
