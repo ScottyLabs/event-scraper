@@ -1,0 +1,38 @@
+---
+config:
+  theme: mc
+---
+flowchart LR
+    A1[Tartan Connect]
+    A2[25Live]
+    A3[Handshake]
+    A4[WC Online]
+    B[Event Scraper Service]
+    C[(S3 Bucket)]
+    D[CMU Maps Processor]
+    E[CMU Cal Processor]
+    F[(CMU Maps DB)]
+    G[(CMU Cal DB)]
+    A1 -- Scrapes --> B
+    A2 -- Scrapes --> B
+    A3 -- Scrapes --> B
+    A4 -- Scrapes --> B
+    B -- Populates --> C
+
+    B -. Notifies .-> D
+    C -- Pulls --> D
+    C -- Pulls --> E
+    B -. Notifies .-> E
+    
+    D --> F
+    E --> G
+
+    subgraph Legend [Legend]
+      direction LR
+      Legal(Data Flow) --> Null:::hidden
+      ExtraLegal(Trigger) -.-> Null2:::hidden
+      classDef LegendEntry stroke-width:0px,fill:none,height:20px,text-align:center,line-height:18px
+      class Legal,ExtraLegal LegendEntry
+      classDef HiddenNode height:0px
+      class Null,Null2 HiddenNode
+    end

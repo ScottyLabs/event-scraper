@@ -8,10 +8,10 @@ The Event Scraper service scrape data and upload them to S3 bucket from the foll
 
 Then the Event Scraper service notifies the Railway services defined in the `NOTIF_CONFIG` environment variable to restart their deployments, which are responsible for pulling the data from S3 bucket and processing them.
 
-## Data Flow
+## Event Scraper System Design
 
-![Data Flow Diagram](./docs/data-flow.png)
-*Use code from [docs/data-flow.txt](./docs/data-flow.txt) to generate the diagram in [Mermaid](https://www.mermaidchart.com/play).*
+![System Design Diagram](./docs/system-design.png)
+*You can regenerate the diagram by pasting the [code](./docs/system-design.txt) into [Mermaid](https://www.mermaidchart.com/play).*
 
 ## Accessing the Scraped Data
 
