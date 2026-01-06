@@ -29,10 +29,10 @@ flowchart LR
 
     subgraph Legend [Legend]
       direction LR
-      Legal(Data Flow) --> Null:::hidden
-      ExtraLegal(Trigger) -.-> Null2:::hidden
-      classDef LegendEntry stroke-width:0px,fill:none,height:20px,text-align:center,line-height:18px
-      class Legal,ExtraLegal LegendEntry
+      L1(Data Flow) --> Null:::hidden
+      L2(Trigger) -.-> Null2:::hidden
+      classDef LegendEntry stroke-width:0px,fill:none,height:10px,text-align:center,line-height:18px
+      class L1,L2 LegendEntry
       classDef HiddenNode height:0px
       class Null,Null2 HiddenNode
     end
