@@ -29,6 +29,11 @@ into [Mermaid](https://www.mermaidchart.com/play).*
 See [Contributing Guide](.github/CONTRIBUTING.md) for instructions on
 how to access the S3 bucket credentials.
 
+## Deployment
+
+See [internal documentation](https://www.notion.so/wiki-scottylabs/Events-API-2b496192554c80f8bd55d8cd108fcd78)
+on how this service is deployed.
+
 ## Development
 
 Open the project with Dev Container. Populate the environment variables following
@@ -38,4 +43,4 @@ following command:
 
 ```bash
 bun src/index.ts
-``
+```
