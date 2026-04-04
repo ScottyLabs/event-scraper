@@ -12,7 +12,8 @@
       "!**/src/routeTree.gen.ts",
       "!**/dist",
       "!**/build",
-      "!**/.turbo"
+      "!**/.turbo",
+      "!**/merged.json"
     ]
   },
   "formatter": {
