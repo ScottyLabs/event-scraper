@@ -11,6 +11,3 @@ build/
 # Misc
 .DS_Store
 .turbo
-
-# Generated output
-merged.json
